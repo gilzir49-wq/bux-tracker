@@ -79,6 +79,9 @@ header.top::before{content:"";position:absolute;inset:0;background:linear-gradie
 .vid .vlabel{position:absolute;bottom:0;right:0;left:0;background:linear-gradient(0deg,rgba(0,0,0,.8),transparent);color:#fff;font-size:12px;font-weight:700;padding:14px 8px 6px}
 .vid iframe{width:100%;height:90px;border:0;display:block}
 .vid.open{width:260px}.vid.open iframe{height:150px}
+.vid.vlink{height:90px;background:linear-gradient(135deg,#3a0f12,#1a0709);display:flex;align-items:flex-end;text-decoration:none}
+.vid.vlink .play{color:#ff4d4d}
+.vid.vlink .yt{position:absolute;top:6px;right:8px;font-size:10px;font-weight:900;color:#ff4d4d;background:rgba(0,0,0,.4);border-radius:6px;padding:2px 6px}
 
 /* מדדים / תוצאות */
 .metric{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:10px}
@@ -138,6 +141,24 @@ footer b{color:var(--gold)}
 .histrow{display:flex;justify-content:space-between;padding:7px 2px;border-bottom:1px solid var(--line);font-size:14px}
 .histrow.best{color:var(--gold);font-weight:800}
 
+.subtabs{display:flex;gap:7px;margin-bottom:10px}
+.subtabs button{flex:1;border:1px solid var(--line);background:var(--card);color:var(--muted);font:inherit;font-weight:800;font-size:14px;padding:11px;border-radius:12px;cursor:pointer}
+.subtabs button.active{background:var(--card2);color:var(--gold);border-color:var(--gold)}
+#coachTrack{display:none}
+body.ct-track #coachTrack{display:block}
+body.ct-track #coachEditor{display:none}
+.tcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;margin-bottom:12px}
+.tcard h4{margin:0 0 9px;font-size:15px;display:flex;align-items:center;gap:7px}
+.tcard .att-names{display:flex;flex-wrap:wrap;gap:6px}
+.tchip{background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:5px 11px;font-size:13px;font-weight:700}
+.tchip.on{background:linear-gradient(135deg,var(--green-lite),var(--green));color:#fff;border:0}
+.tmetric{margin-top:11px}
+.tmetric .tml{font-size:13px;font-weight:800;color:var(--gold);margin-bottom:4px}
+.tmember-pick{width:100%;background:var(--bg2);color:var(--txt);border:1px solid var(--line);border-radius:11px;padding:11px;font:inherit;font-size:15px;margin-bottom:12px}
+.prog-line{display:flex;justify-content:space-between;font-size:13.5px;padding:7px 2px;border-bottom:1px solid rgba(255,255,255,.05)}
+.prog-line .pv{font-weight:800}
+.prog-line .pv .pr{color:var(--gold)}
+.prog-line .pd2{color:var(--muted);font-size:11px}
 #viewMember,#viewCoach{display:none}
 body.v-member #viewMember{display:block}
 body.v-coach #viewCoach{display:block}
@@ -181,7 +202,12 @@ body.coach-on #coachLock{display:none}
     <button class="btn sm" id="btnUnlock" style="margin:0 auto">🔓 כניסה עם קוד</button>
   </div>
   <div id="coachContent">
+    <div class="subtabs">
+      <button id="ctPlan" class="active">✏️ תכנון האימון</button>
+      <button id="ctTrack">📊 מעקב מתאמנים</button>
+    </div>
     <div id="coachEditor"></div>
+    <div id="coachTrack"></div>
   </div>
 </div>
 
@@ -239,6 +265,8 @@ function isNum(v){return v!==""&&v!=null&&!isNaN(parseFloat(v));}
 let SELDATE=todayISO(), PROG=null, PROGDATES={}, RESULTS=[], DRAFT=null, coachOn=false;
 let MEMBER=""; try{MEMBER=localStorage.getItem("bux_member")||"";}catch(e){}
 try{coachOn=sessionStorage.getItem("bux_coach")==="1";}catch(e){}
+let coachTab="plan"; try{coachTab=localStorage.getItem("bux_ctab")||"plan";}catch(e){}
+let trackMember="";
 
 /* ---------- ענן ---------- */
 function setSync(t){$("syncDot").textContent=t;}
@@ -286,12 +314,16 @@ function findResult(date,member,sid,label){return RESULTS.find(r=>r.date===date&
 function memberHistory(label){return RESULTS.filter(r=>r.member===MEMBER&&r.metricLabel===label&&isNum(r.value)).sort((a,b)=>a.date<b.date?-1:1);}
 
 /* ---------- תצוגת מתאמן ---------- */
-function videoHTML(v,si,vi){
+function videoHTML(v){
   const id=ytId(v.url);
-  const thumb=id?`https://img.youtube.com/vi/${id}/mqdefault.jpg`:"";
-  return `<div class="vid" data-yt="${id}" data-si="${si}" data-vi="${vi}">
-    ${id?`<img src="${thumb}" alt=""><span class="play">▶</span>`:`<div style="height:90px;display:grid;place-items:center;color:#fff">▶</div>`}
-    <span class="vlabel">${esc(v.label||"סרטון")}</span></div>`;
+  if(id){
+    const thumb=`https://img.youtube.com/vi/${id}/mqdefault.jpg`;
+    return `<div class="vid" data-yt="${id}"><img src="${thumb}" alt=""><span class="play">▶</span><span class="vlabel">${esc(v.label||"")}</span></div>`;
+  }
+  if(v.url){
+    return `<a class="vid vlink" href="${esc(v.url)}" target="_blank" rel="noopener"><span class="yt">YouTube</span><span class="play">▶</span><span class="vlabel">${esc(v.label||"סרטון")}</span></a>`;
+  }
+  return "";
 }
 function metricHTML(m,sid){
   const ex=findResult(SELDATE,MEMBER,sid,m.label);
@@ -339,7 +371,7 @@ function renderMember(){
       <div class="sb">
         ${s.leaderboard?'<span class="lb-tag">🏆 לוח תוצאות יומי</span><br>':''}
         ${s.body?`<div class="body">${esc(s.body)}</div>`:""}
-        ${vids.length?`<div class="vids">${vids.map((v,vi)=>videoHTML(v,si,vi)).join("")}</div>`:""}
+        ${vids.length?`<div class="vids">${vids.map(videoHTML).join("")}</div>`:""}
         ${mets.map(m=>metricHTML(m,s.id)).join("")}
         ${s.leaderboard?leaderboardHTML(s):""}
       </div></div>`;
@@ -407,6 +439,50 @@ function harvest(){
 function renderCoach(){
   if(!coachOn) return;
   renderWeek();
+  document.body.classList.toggle("ct-track",coachTab==="track");
+  $("ctPlan").classList.toggle("active",coachTab==="plan");
+  $("ctTrack").classList.toggle("active",coachTab==="track");
+  if(coachTab==="track"){ renderTrack(); return; }
+  renderEditor();
+}
+function renderTrack(){
+  const real=RESULTS.filter(r=>r.metricLabel!=="__att__");
+  const members=[...new Set(RESULTS.map(r=>r.member))].sort();
+  const att=RESULTS.filter(r=>r.date===SELDATE&&r.metricLabel==="__att__").map(r=>r.member).sort();
+  const today=real.filter(r=>r.date===SELDATE);
+  const groups={}; today.forEach(r=>{(groups[r.metricLabel]=groups[r.metricLabel]||[]).push(r);});
+  let html=`<div class="tcard"><h4>📅 ${fmtLong(SELDATE)} — ${esc((PROG&&PROG.title)||"")}</h4>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:8px">נוכחות: <b style="color:var(--gold)">${att.length}</b> מתאמנים</div>
+    <div class="att-names">${att.length?att.map(m=>`<span class="tchip on">${esc(m)}</span>`).join(""):'<span style="color:var(--muted);font-size:13px">עדיין אף אחד לא סימן נוכחות היום</span>'}</div>`;
+  Object.keys(groups).forEach(lbl=>{
+    const rows=groups[lbl].slice().sort((a,b)=>(isNum(a.value)&&isNum(b.value))?parseFloat(b.value)-parseFloat(a.value):0);
+    html+=`<div class="tmetric"><div class="tml">🏆 ${esc(lbl)}</div>`+
+      rows.map((r,i)=>`<div class="prog-line"><span>${i+1}. ${esc(r.member)}</span><span class="pv">${esc(r.value)} ${esc(r.unit||"")}</span></div>`).join("")+`</div>`;
+  });
+  html+=`</div>`;
+  html+=`<div class="tcard"><h4>👤 מעקב אישי לפי מתאמן</h4>
+    <select class="tmember-pick" id="trackPick"><option value="">בחר מתאמן…</option>${members.map(m=>`<option value="${esc(m)}" ${m===trackMember?"selected":""}>${esc(m)}</option>`).join("")}</select>`;
+  if(trackMember){
+    const mine=real.filter(r=>r.member===trackMember);
+    const attCount=RESULTS.filter(r=>r.member===trackMember&&r.metricLabel==="__att__").length;
+    const byLabel={}; mine.forEach(r=>{(byLabel[r.metricLabel]=byLabel[r.metricLabel]||[]).push(r);});
+    const keys=Object.keys(byLabel).sort();
+    html+=`<div style="font-size:13px;color:var(--muted);margin-bottom:8px">✅ ${attCount} אימונים · ${keys.length} תרגילים שנמדדו</div>`;
+    if(!keys.length) html+=`<div style="color:var(--muted);font-size:13px">אין תוצאות שמורות עדיין.</div>`;
+    keys.forEach(lbl=>{
+      const arr=byLabel[lbl].slice().sort((a,b)=>a.date<b.date?-1:1);
+      const last=arr[arr.length-1];
+      const nums=arr.filter(x=>isNum(x.value)).map(x=>parseFloat(x.value));
+      const pr=nums.length?Math.max(...nums):null;
+      html+=`<div class="prog-line"><span>${esc(lbl)}<div class="pd2">${arr.length} פעמים · אחרון ${fmtLong(last.date)}</div></span>
+        <span class="pv">${esc(last.value)} ${esc(last.unit||"")}${pr!=null?` · <span class="pr">שיא ${pr}</span>`:""}</span></div>`;
+    });
+  }
+  html+=`</div>`;
+  $("coachTrack").innerHTML=html;
+  const pick=$("trackPick"); if(pick) pick.onchange=e=>{trackMember=e.target.value;renderTrack();};
+}
+function renderEditor(){
   if(!DRAFT) startDraft();
   let html=`<div class="proghead"><div class="pd">תוכנית ליום ${fmtLong(SELDATE)}</div></div>
     <div class="ed">
@@ -469,6 +545,9 @@ $("coachEditor").addEventListener("click",async e=>{
 /* ---------- מצב מאמן ---------- */
 function unlockCoach(){const p=prompt("קוד מאמן:");if(p===null)return;if(p===COACH_PIN){coachOn=true;try{sessionStorage.setItem("bux_coach","1");}catch(e){}document.body.classList.add("coach-on");DRAFT=null;renderCoach();}else alert("קוד שגוי 🔒");}
 $("btnUnlock").onclick=unlockCoach;
+function saveCtab(){try{localStorage.setItem("bux_ctab",coachTab);}catch(e){}}
+$("ctPlan").onclick=()=>{coachTab="plan";saveCtab();renderCoach();};
+$("ctTrack").onclick=()=>{coachTab="track";saveCtab();renderCoach();};
 
 /* ---------- מתגי תצוגה ---------- */
 function setView(v){
@@ -493,8 +572,10 @@ async function init(){
   setInterval(async()=>{
     const focused=document.activeElement&&/INPUT|TEXTAREA/.test(document.activeElement.tagName);
     if(focused)return;
-    if(document.body.classList.contains("v-coach")&&coachOn)return; // לא לדרוס עריכה
-    await loadAll(); renderMember();
+    const inCoach=document.body.classList.contains("v-coach")&&coachOn;
+    if(inCoach&&coachTab==="plan")return;   // לא לדרוס עריכה
+    await loadAll();
+    if(inCoach) renderTrack(); else renderMember();
   },1000*20);
 }
 init();
