@@ -257,9 +257,16 @@ const NODE = "bux-tracker";
 const COACH_PIN = "bux2026";
 /* אמוג'י לכל סוג מקטע (לפי מילה בכותרת) */
 const SEC_ICONS = [
-  [/חימום|warm/i,"🔥"],[/כוח|strength|weightlift|משקול/i,"🏋️"],
-  [/clean|חטיפה|נטיש|הנפה|סנאצ|snatch/i,"💪"],[/crossfit|metcon|wod|מטקון/i,"⚡"],
-  [/ריצה|run|אירובי|cardio/i,"🏃"],[/מתיחות|שחרור|cool|mobility|מוביל/i,"🧘"],[/ליבה|core|בטן/i,"🎯"]
+  [/חימום|warm/i,"🔥"],
+  [/gymnast|ג'ימנס|ג׳ימנס|התעמלות|handstand|עמידת ידיים/i,"🤸"],
+  [/endurance|סיבולת/i,"🏃"],
+  [/partner|זוג/i,"🤝"],
+  [/cash ?out|finisher|סיום/i,"🧊"],
+  [/כוח|strength|weightlift|משקול/i,"🏋️"],
+  [/clean|חטיפה|נטיש|הנפה|סנאצ|snatch/i,"💪"],
+  [/crossfit|metcon|wod|מטקון/i,"⚡"],
+  [/ריצה|run|אירובי|cardio/i,"🏃"],
+  [/מתיחות|שחרור|cool|mobility|מוביל/i,"🧘"],[/ליבה|core|בטן/i,"🎯"]
 ];
 </script>
 
@@ -278,6 +285,22 @@ function genId(){return `${Date.now()}-${Math.random().toString(36).slice(2,7)}`
 function secIcon(t){for(const[re,ic]of SEC_ICONS)if(re.test(t||""))return ic;return "📋";}
 function ytId(u){const m=(u||"").match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/);return m?m[1]:"";}
 function isNum(v){return v!==""&&v!=null&&!isNaN(parseFloat(v));}
+/* דירוג חכם: זמן (mm:ss) → הכי מהיר מנצח · מספרים (kg/סבבים) → הכי גבוה מנצח */
+function toSecs(v){const m=String(v).trim().match(/^(\d{1,3}):(\d{2})$/);return m?(+m[1]*60+ +m[2]):null;}
+function fmtSecs(s){return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");}
+function bestOf(vals){
+  const secs=vals.map(toSecs).filter(x=>x!=null);
+  if(secs.length){const b=Math.min(...secs);return {display:fmtSecs(b),n:b};}
+  const nums=vals.filter(isNum).map(parseFloat);
+  if(nums.length){const b=Math.max(...nums);return {display:String(b),n:b};}
+  return null;
+}
+function cmpResults(a,b){
+  const ta=toSecs(a.value),tb=toSecs(b.value);
+  if(ta!=null||tb!=null){ if(ta==null)return 1; if(tb==null)return -1; return ta-tb; }
+  const na=isNum(a.value)?parseFloat(a.value):null,nb=isNum(b.value)?parseFloat(b.value):null;
+  if(na==null&&nb==null)return 0; if(na==null)return 1; if(nb==null)return -1; return nb-na;
+}
 
 /* ---------- מצב ---------- */
 let SELDATE=todayISO(), PROG=null, PROGDATES={}, RESULTS=[], USERS=[], DRAFT=null, coachOn=false;
@@ -387,17 +410,17 @@ function videoHTML(v){
 function metricHTML(m,sid){
   const ex=findResult(SELDATE,USER.uid,sid,m.label);
   const hist=memberHistory(m.label);
-  const best=hist.length?Math.max(...hist.map(h=>parseFloat(h.value))):null;
+  const b=hist.length?bestOf(hist.map(h=>h.value)):null;
   let lastTxt="";
   if(hist.length){
     const prev=hist.filter(h=>h.date<SELDATE).slice(-1)[0];
-    if(prev) lastTxt=`קודם: ${esc(prev.value)} ${esc(m.unit||"")} · שיא: <span class="pr">${best}</span>`;
-    else if(best!=null) lastTxt=`שיא אישי: <span class="pr">${best}</span> ${esc(m.unit||"")}`;
+    if(prev) lastTxt=`קודם: ${esc(prev.value)} ${esc(m.unit||"")}${b?` · שיא: <span class="pr">${b.display}</span>`:""}`;
+    else if(b) lastTxt=`שיא אישי: <span class="pr">${b.display}</span> ${esc(m.unit||"")}`;
   }
   return `<div class="metric">
     <div class="top2">
       <div class="ml">${esc(m.label)} ${m.unit?`<span class="mu">(${esc(m.unit)})</span>`:""}</div>
-      <input class="mval" data-sid="${sid}" data-label="${esc(m.label)}" data-unit="${esc(m.unit||"")}" inputmode="decimal" value="${ex?esc(ex.value):""}" placeholder="תוצאה">
+      <input class="mval" data-sid="${sid}" data-label="${esc(m.label)}" data-unit="${esc(m.unit||"")}" value="${ex?esc(ex.value):""}" placeholder="תוצאה">
       <button class="hist" data-histlabel="${esc(m.label)}" data-histunit="${esc(m.unit||"")}">📈</button>
     </div>
     ${lastTxt?`<div class="last">${lastTxt}</div>`:""}
@@ -407,8 +430,7 @@ function leaderboardHTML(sec){
   const m=sec.metrics&&sec.metrics[0]; if(!m) return "";
   let rows=RESULTS.filter(r=>r.date===SELDATE&&r.sectionId===sec.id&&r.metricLabel===m.label&&r.value!=="");
   if(!rows.length) return `<div class="lboard"><div class="lt">🏆 לוח תוצאות</div><div class="last">עדיין אין תוצאות להיום</div></div>`;
-  const numeric=rows.every(r=>isNum(r.value));
-  rows.sort((a,b)=>numeric?(parseFloat(b.value)-parseFloat(a.value)):(a.member<b.member?-1:1));
+  rows.sort(cmpResults);
   return `<div class="lboard"><div class="lt">🏆 לוח תוצאות — ${esc(m.label)}</div>`+
     rows.map((r,i)=>`<div class="lrow ${(USER&&r.uid===USER.uid)?'mine':''}"><span><span class="rk">${i+1}.</span>${esc(r.member)}</span><span>${esc(r.value)} ${esc(m.unit||"")}</span></div>`).join("")+`</div>`;
 }
@@ -436,10 +458,9 @@ function renderProfile(){
     keys.forEach(lbl=>{
       const arr=byLabel[lbl].slice().sort((a,b)=>a.date<b.date?-1:1);
       const last=arr[arr.length-1];
-      const nums=arr.filter(x=>isNum(x.value)).map(x=>parseFloat(x.value));
-      const pr=nums.length?Math.max(...nums):null;
+      const b=bestOf(arr.map(x=>x.value));
       html+=`<div class="prog-line"><span>${esc(lbl)}<div class="pd2">${arr.length} פעמים · אחרון ${fmtLong(last.date)}</div></span>
-        <span class="pv">${pr!=null?`<span class="pr">שיא ${pr} ${esc(last.unit||"")}</span>`:esc(last.value)+" "+esc(last.unit||"")}</span></div>`;
+        <span class="pv">${b?`<span class="pr">שיא ${b.display} ${esc(last.unit||"")}</span>`:esc(last.value)+" "+esc(last.unit||"")}</span></div>`;
     });
     html+=`</div>`;
   }
@@ -507,9 +528,12 @@ function showHistory(label,unit){
   $("histTitle").textContent="📈 "+label;
   if(!h.length){ $("histSub").textContent="עדיין אין תוצאות שמורות."; $("histList").innerHTML=""; }
   else{
-    const best=Math.max(...h.map(x=>parseFloat(x.value)));
-    $("histSub").textContent=`${h.length} תוצאות · שיא אישי ${best} ${unit||""}`;
-    $("histList").innerHTML=h.slice().reverse().map(x=>`<div class="histrow ${parseFloat(x.value)===best?'best':''}"><span>${fmtLong(x.date)}</span><span>${esc(x.value)} ${esc(unit||"")} ${parseFloat(x.value)===best?'🏆':''}</span></div>`).join("");
+    const b=bestOf(h.map(x=>x.value));
+    $("histSub").textContent=`${h.length} תוצאות${b?` · שיא אישי ${b.display} ${unit||""}`:""}`;
+    $("histList").innerHTML=h.slice().reverse().map(x=>{
+      const isBest=!!b&&((toSecs(x.value)!=null?toSecs(x.value):parseFloat(x.value))===b.n);
+      return `<div class="histrow ${isBest?'best':''}"><span>${fmtLong(x.date)}</span><span>${esc(x.value)} ${esc(unit||"")} ${isBest?'🏆':''}</span></div>`;
+    }).join("");
   }
   $("histModal").classList.add("show");
 }
@@ -548,7 +572,7 @@ function renderTrack(){
     <div style="font-size:13px;color:var(--muted);margin-bottom:8px">נוכחות: <b style="color:var(--gold)">${att.length}</b> מתאמנים</div>
     <div class="att-names">${att.length?att.map(m=>`<span class="tchip on">${esc(m)}</span>`).join(""):'<span style="color:var(--muted);font-size:13px">עדיין אף אחד לא סימן נוכחות היום</span>'}</div>`;
   Object.keys(groups).forEach(lbl=>{
-    const rows=groups[lbl].slice().sort((a,b)=>(isNum(a.value)&&isNum(b.value))?parseFloat(b.value)-parseFloat(a.value):0);
+    const rows=groups[lbl].slice().sort(cmpResults);
     html+=`<div class="tmetric"><div class="tml">🏆 ${esc(lbl)}</div>`+
       rows.map((r,i)=>`<div class="prog-line"><span>${i+1}. ${esc(r.member)}</span><span class="pv">${esc(r.value)} ${esc(r.unit||"")}</span></div>`).join("")+`</div>`;
   });
@@ -565,10 +589,9 @@ function renderTrack(){
     keys.forEach(lbl=>{
       const arr=byLabel[lbl].slice().sort((a,b)=>a.date<b.date?-1:1);
       const last=arr[arr.length-1];
-      const nums=arr.filter(x=>isNum(x.value)).map(x=>parseFloat(x.value));
-      const pr=nums.length?Math.max(...nums):null;
+      const b=bestOf(arr.map(x=>x.value));
       html+=`<div class="prog-line"><span>${esc(lbl)}<div class="pd2">${arr.length} פעמים · אחרון ${fmtLong(last.date)}</div></span>
-        <span class="pv">${esc(last.value)} ${esc(last.unit||"")}${pr!=null?` · <span class="pr">שיא ${pr}</span>`:""}</span></div>`;
+        <span class="pv">${esc(last.value)} ${esc(last.unit||"")}${b?` · <span class="pr">שיא ${b.display}</span>`:""}</span></div>`;
     });
   }
   html+=`</div>`;
