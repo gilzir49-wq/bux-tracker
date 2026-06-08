@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#1F5D24">
+<title>BUX · מעקב אימונים</title>
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BUX אימונים">
+<style>
+:root{
+  --bg:#0d1410; --bg2:#13201a; --card:#16241c; --card2:#1d3026;
+  --txt:#f3f7f3; --muted:#9db3a4; --line:#244233;
+  --green:#1F5D24; --green-lite:#2e8b3d; --gold:#F1C93B; --gold-deep:#d9ad1f;
+  --radius:18px; --shadow:0 8px 30px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{font-family:"Heebo","Assistant",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  background:radial-gradient(1100px 560px at 100% -8%,#16331f 0,var(--bg) 55%);
+  color:var(--txt);line-height:1.45;min-height:100vh;padding-bottom:40px}
+.wrap{max-width:720px;margin:0 auto;padding:14px}
+.logobar{text-align:center;padding:4px 0 10px}
+.logobar img{width:46%;max-width:150px;height:auto;filter:drop-shadow(0 8px 22px rgba(0,0,0,.55))}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 16px;
+  border-radius:var(--radius);background:linear-gradient(135deg,var(--green),#0e1c12);
+  box-shadow:var(--shadow);border:1px solid var(--line);position:relative;overflow:hidden}
+header.top::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--gold),var(--green-lite));height:5px}
+.top h1{margin:0;font-size:19px;font-weight:900}
+.top .sub{color:#cfe6d6;font-size:12.5px;margin-top:2px}
+.top .me{text-align:left;font-size:12px;color:#cfe6d6}
+.top .me b{color:var(--gold);font-size:14px;display:block}
+
+.viewtoggle{display:flex;background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:5px;margin:14px 0;gap:5px}
+.viewtoggle button{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-weight:800;font-size:15px;padding:12px;border-radius:999px;cursor:pointer;transition:.15s}
+.viewtoggle button.active{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1400;box-shadow:0 4px 14px rgba(241,201,59,.3)}
+
+.daily{border-radius:var(--radius);border:1px solid var(--line);background:linear-gradient(135deg,#1d3026,#162a1d);box-shadow:var(--shadow);padding:15px 16px;margin-bottom:14px}
+.daily .lbl{font-size:12px;font-weight:900;color:var(--gold);letter-spacing:.5px}
+.daily .txt{font-size:16px;font-weight:700;white-space:pre-wrap;margin-top:5px}
+.daily .empty{color:var(--muted);font-weight:500;font-size:14px}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+.card h3{margin:0 0 11px;font-size:16px;display:flex;align-items:center;gap:7px}
+label.fld{display:block;font-size:13px;color:var(--muted);font-weight:700;margin:10px 0 0}
+input,select,textarea{width:100%;margin-top:5px;background:var(--bg2);color:var(--txt);border:1px solid var(--line);
+  border-radius:11px;padding:11px;font:inherit;font-size:15px}
+textarea{min-height:60px;resize:vertical}
+input[type=range]{padding:0;accent-color:var(--gold)}
+.rpe-row{display:flex;align-items:center;gap:10px;margin-top:6px}
+.rpe-row output{font-size:22px;font-weight:900;min-width:54px;text-align:center}
+.btn{width:100%;border:0;font:inherit;font-weight:900;font-size:16px;padding:14px;border-radius:13px;cursor:pointer;margin-top:14px;
+  background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1400;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn:active{transform:scale(.99)}
+.btn.sec{background:var(--card2);color:var(--txt);border:1px solid var(--line);font-size:14px;padding:11px;margin-top:0}
+.btn.sm{width:auto;padding:8px 12px;font-size:13px;margin:0}
+.btn.danger{background:transparent;color:#fca5a5;border:1px solid #7f2d1d}
+
+/* רשומת אימון */
+.log{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:13px;margin-bottom:11px;border-right:5px solid var(--green-lite)}
+.log .lh{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.log .who{font-weight:900;font-size:15px}
+.log .date{font-size:12px;color:var(--muted);font-weight:700}
+.log .type{font-size:17px;font-weight:900;margin-top:6px}
+.log .res{font-size:14px;color:#dceae0;margin-top:3px}
+.log .rpe{font-size:12px;font-weight:900;background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:4px 10px;white-space:nowrap}
+.log .notes{font-size:13.5px;color:#cfe6d6;margin-top:7px;background:rgba(255,255,255,.04);border-radius:9px;padding:8px 10px}
+.log .fb{margin-top:9px;background:rgba(241,201,59,.12);border:1px solid rgba(241,201,59,.4);border-radius:11px;padding:9px 11px}
+.log .fb .fl{font-size:11px;font-weight:900;color:var(--gold);letter-spacing:.3px}
+.log .fb .ft{font-size:14px;margin-top:3px;white-space:pre-wrap}
+.log .nofb{font-size:12.5px;color:var(--muted);margin-top:8px;font-style:italic}
+.log .acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.log .fbedit{margin-top:9px}
+.log .fbedit textarea{min-height:48px}
+
+.filters{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.filters select{flex:1;min-width:130px}
+.empty-state{text-align:center;color:var(--muted);padding:30px 14px;font-size:14px}
+.section-title{font-size:13px;font-weight:900;color:var(--gold);letter-spacing:.5px;margin:18px 2px 9px}
+.statline{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700}
+.stat b{color:var(--gold)}
+.syncdot{font-size:11px;color:var(--muted);text-align:center;margin:2px 0 12px;font-weight:700}
+
+#coachLock{text-align:center;padding:26px 16px}
+#coachLock .big{font-size:40px}
+#coachLock p{color:var(--muted);font-size:14px;margin:8px 0 16px}
+
+/* תצוגות */
+#viewMember,#viewCoach{display:none}
+body.v-member #viewMember{display:block}
+body.v-coach #viewCoach{display:block}
+body:not(.coach-on) #coachContent{display:none}
+body.coach-on #coachLock{display:none}
+
+footer{color:var(--muted);font-size:12px;text-align:center;margin-top:24px;line-height:1.7}
+footer b{color:var(--gold)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:18px}
+.modal.show{display:flex}
+.modal .box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;max-width:360px;width:100%}
+.modal h3{margin:0 0 6px;font-size:18px}
+.modal p{color:var(--muted);font-size:13px;margin:0 0 12px}
+</style>
+</head>
+<body class="v-member">
+<div class="wrap">
+
+<div class="logobar"><img src="logo.png" alt="CrossFit BUX"></div>
+
+<header class="top">
+  <div>
+    <h1>מעקב אימונים 🏋️</h1>
+    <div class="sub">CrossFit BUX · יהוד</div>
+  </div>
+  <div class="me" id="meBox"></div>
+</header>
+
+<div class="viewtoggle">
+  <button id="btnMember">🏋️ האימון שלי</button>
+  <button id="btnCoach">👀 מאמן</button>
+</div>
+
+<div class="syncdot" id="syncDot">☁️ מתחבר…</div>
+
+<!-- באנר "אימון היום" — נראה לכולם -->
+<div class="daily" id="dailyBanner" style="display:none">
+  <div class="lbl">🎯 אימון היום</div>
+  <div class="txt" id="dailyTxt"></div>
+</div>
+
+<!-- ===================== מתאמן ===================== -->
+<div id="viewMember">
+  <div class="card">
+    <h3>➕ רישום אימון</h3>
+    <label class="fld">תאריך
+      <input type="date" id="fDate"></label>
+    <label class="fld">סוג / שם האימון
+      <input type="text" id="fType" placeholder="למשל: Fran · כוח רגליים · EMOM 20'"></label>
+    <label class="fld">תוצאה / משקל / זמן
+      <input type="text" id="fResult" placeholder="למשל: 4:32 · 80 ק״ג · 5 סבבים"></label>
+    <label class="fld">איך הרגשת? (1–10)
+      <div class="rpe-row">
+        <input type="range" id="fRpe" min="1" max="10" value="7">
+        <output id="fRpeOut">7 💪</output>
+      </div></label>
+    <label class="fld">הערות (אופציונלי)
+      <textarea id="fNotes" placeholder="תחושות, כאבים, מה היה קשה, מה רוצים לשפר…"></textarea></label>
+    <button class="btn" id="btnAdd">✓ שמירת האימון</button>
+  </div>
+
+  <div class="section-title">ההיסטוריה שלי</div>
+  <div id="myLogs"></div>
+</div>
+
+<!-- ===================== מאמן ===================== -->
+<div id="viewCoach">
+  <div id="coachLock">
+    <div class="big">🔒</div>
+    <p>אזור מאמן — צפייה בכל המתאמנים ומתן פידבק.<br>הזינו את הקוד כדי להיכנס.</p>
+    <button class="btn sm" id="btnUnlock" style="margin:0 auto">🔓 כניסה עם קוד</button>
+  </div>
+
+  <div id="coachContent">
+    <div class="card">
+      <h3>🎯 אימון היום (נראה לכל המתאמנים)</h3>
+      <textarea id="dailyEdit" placeholder="כתוב כאן את ה-WOD / תוכנית היום…"></textarea>
+      <button class="btn" id="btnDaily">📢 פרסום אימון היום</button>
+    </div>
+
+    <div class="section-title">פעילות מתאמנים</div>
+    <div class="statline" id="coachStats"></div>
+    <div class="filters">
+      <select id="fltMember"><option value="">כל המתאמנים</option></select>
+      <select id="fltRange">
+        <option value="7">7 ימים אחרונים</option>
+        <option value="30">30 ימים אחרונים</option>
+        <option value="0">הכל</option>
+      </select>
+    </div>
+    <div id="coachLogs"></div>
+  </div>
+</div>
+
+<footer>
+  <b>CrossFit BUX</b> · מעקב אימונים<br>
+  שמרו את הלינק במסך הבית לגישה מהירה 💪
+</footer>
+</div>
+
+<!-- מודאל הזנת שם -->
+<div class="modal" id="nameModal">
+  <div class="box">
+    <h3>ברוכים הבאים! 👋</h3>
+    <p>איך קוראים לך? (כדי שהמאמן ידע מי רשם את האימון)</p>
+    <input type="text" id="nameInput" placeholder="השם שלך">
+    <button class="btn" id="nameSave">המשך</button>
+  </div>
+</div>
+
+<!-- ============================================================= -->
+<!-- ===============   הגדרות (לעריכה קלה)   ===================== -->
+<!-- ============================================================= -->
+<script id="CONFIG">
+/* כתובת מסד הנתונים והקוד למאמן.
+   COACH_PIN = הקוד שמכניס לאזור המאמן (פידבק + צפייה בכולם). שנה אם תרצה. */
+const DB   = "https://command-center-gal-default-rtdb.europe-west1.firebasedatabase.app";
+const NODE = "bux-tracker";
+const COACH_PIN = "bux2026";
+</script>
+
+<script>
+/* ---------- עזרים ---------- */
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2,"0");
+const todayISO = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const genId = () => `${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
+const esc = s => (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+function fmtDate(iso){ if(!iso) return ""; const [y,m,d]=iso.split("-"); return `${d}.${m}.${y}`; }
+function rpeEmoji(v){ v=+v; return v>=9?"🔥":v>=7?"💪":v>=4?"😅":"😣"; }
+
+/* ---------- מצב ---------- */
+let LOGS=[], DAILY=null, coachOn=false, lastSig="";
+let MEMBER = "";
+try{ MEMBER = localStorage.getItem("bux_member")||""; }catch(e){}
+try{ coachOn = sessionStorage.getItem("bux_coach")==="1"; }catch(e){}
+
+/* ---------- ענן (Firebase RTDB) ---------- */
+function setSync(t){ $("syncDot").textContent=t; }
+async function fetchAll(){
+  try{
+    const r=await fetch(`${DB}/${NODE}.json`,{cache:"no-store"});
+    if(!r.ok){ setSync("⚠️ אין חיבור"); return false; }
+    const o=await r.json()||{};
+    const logsObj=o.logs||{};
+    LOGS=Object.entries(logsObj).map(([id,v])=>({id,...v}))
+         .sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+    DAILY=o.daily||null;
+    setSync("☁️ מסונכרן");
+    return true;
+  }catch(e){ setSync("⚠️ אין חיבור"); return false; }
+}
+async function putLog(entry){ await fetch(`${DB}/${NODE}/logs/${entry.id}.json`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(entry)}); }
+async function patchLog(id,patch){ await fetch(`${DB}/${NODE}/logs/${id}.json`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(patch)}); }
+async function delLogCloud(id){ await fetch(`${DB}/${NODE}/logs/${id}.json`,{method:"DELETE"}); }
+async function putDaily(obj){ await fetch(`${DB}/${NODE}/daily.json`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(obj)}); }
+
+/* חתימה כדי לרענן רק כשיש שינוי אמיתי */
+function sig(){ return LOGS.map(l=>l.id+(l.fbAt||0)).join(",")+"|"+(DAILY?DAILY.text+DAILY.date:""); }
+
+/* ---------- שם מתאמן ---------- */
+function renderMe(){
+  $("meBox").innerHTML = MEMBER ? `מתאמן<b>${esc(MEMBER)}</b><span style="cursor:pointer;text-decoration:underline">שינוי שם</span>` : "";
+  const sp=$("meBox").querySelector("span"); if(sp) sp.onclick=askName;
+}
+function askName(){ $("nameInput").value=MEMBER; $("nameModal").classList.add("show"); $("nameInput").focus(); }
+$("nameSave").onclick=()=>{
+  const v=$("nameInput").value.trim();
+  if(!v){ $("nameInput").focus(); return; }
+  MEMBER=v; try{ localStorage.setItem("bux_member",v); }catch(e){}
+  $("nameModal").classList.remove("show"); renderMe(); renderMember();
+};
+
+/* ---------- רישום אימון ---------- */
+$("fRpe").oninput=e=>{ $("fRpeOut").textContent=`${e.target.value} ${rpeEmoji(e.target.value)}`; };
+$("btnAdd").onclick=async()=>{
+  if(!MEMBER){ askName(); return; }
+  const type=$("fType").value.trim();
+  if(!type){ $("fType").focus(); return; }
+  const entry={ id:genId(), member:MEMBER, date:$("fDate").value||todayISO(),
+    type, result:$("fResult").value.trim(), rpe:+$("fRpe").value,
+    notes:$("fNotes").value.trim(), fb:"", fbAt:0, createdAt:Date.now() };
+  $("btnAdd").textContent="שומר…"; $("btnAdd").disabled=true;
+  await putLog(entry);
+  LOGS.unshift(entry);
+  $("fType").value=""; $("fResult").value=""; $("fNotes").value=""; $("fRpe").value=7; $("fRpeOut").textContent="7 💪";
+  $("btnAdd").textContent="✓ נשמר!"; setTimeout(()=>{ $("btnAdd").textContent="✓ שמירת האימון"; $("btnAdd").disabled=false; },1200);
+  renderMember();
+};
+
+/* ---------- כרטיס אימון ---------- */
+function logCard(l,coach){
+  const fb = l.fb
+    ? `<div class="fb"><div class="fl">📣 פידבק מהמאמן</div><div class="ft">${esc(l.fb)}</div></div>`
+    : (coach?"":`<div class="nofb">⏳ ממתין לפידבק מהמאמן</div>`);
+  const notes = l.notes?`<div class="notes">📝 ${esc(l.notes)}</div>`:"";
+  const coachFb = coach?`
+    <div class="fbedit">
+      <textarea data-fb="${l.id}" placeholder="כתוב פידבק למתאמן…">${esc(l.fb||"")}</textarea>
+      <div class="acts">
+        <button class="btn sm" data-savefb="${l.id}">💾 שמירת פידבק</button>
+        <button class="btn sm danger" data-del="${l.id}">🗑 מחיקה</button>
+      </div>
+    </div>`:"";
+  const ownDel = (!coach && l.member===MEMBER)?`<div class="acts"><button class="btn sm danger" data-del="${l.id}">🗑 מחיקה</button></div>`:"";
+  return `<div class="log">
+    <div class="lh">
+      <div><div class="who">${coach?esc(l.member):"🏋️ "+esc(l.member)}</div><div class="date">${fmtDate(l.date)}</div></div>
+      <div class="rpe">${rpeEmoji(l.rpe)} ${l.rpe||"-"}/10</div>
+    </div>
+    <div class="type">${esc(l.type)}</div>
+    ${l.result?`<div class="res">🎯 ${esc(l.result)}</div>`:""}
+    ${notes}${fb}${coachFb}${ownDel}
+  </div>`;
+}
+
+/* ---------- תצוגת מתאמן ---------- */
+function renderMember(){
+  $("fDate").value = $("fDate").value || todayISO();
+  if(DAILY&&DAILY.text){ $("dailyBanner").style.display="block"; $("dailyTxt").textContent=DAILY.text; }
+  else $("dailyBanner").style.display="none";
+  const mine=LOGS.filter(l=>l.member===MEMBER);
+  $("myLogs").innerHTML = mine.length ? mine.map(l=>logCard(l,false)).join("")
+    : `<div class="empty-state">עדיין לא רשמת אימונים.<br>רשום את הראשון למעלה! 💪</div>`;
+}
+
+/* ---------- תצוגת מאמן ---------- */
+function renderCoach(){
+  if(!coachOn) return;
+  if(DAILY&&DAILY.text) $("dailyEdit").value=DAILY.text;
+  // מסננים
+  const members=[...new Set(LOGS.map(l=>l.member))].sort();
+  const cur=$("fltMember").value;
+  $("fltMember").innerHTML=`<option value="">כל המתאמנים</option>`+members.map(m=>`<option value="${esc(m)}" ${m===cur?"selected":""}>${esc(m)}</option>`).join("");
+  const range=+$("fltRange").value;
+  const cutoff = range? Date.now()-range*864e5 : 0;
+  let list=LOGS.filter(l=>!cur||l.member===cur).filter(l=>!cutoff||(l.createdAt||0)>=cutoff);
+  // סטטיסטיקה (7 ימים)
+  const wk=Date.now()-7*864e5;
+  const cntWk=LOGS.filter(l=>(l.createdAt||0)>=wk).length;
+  const activeWk=new Set(LOGS.filter(l=>(l.createdAt||0)>=wk).map(l=>l.member)).size;
+  const pending=LOGS.filter(l=>!l.fb).length;
+  $("coachStats").innerHTML=`<span class="stat"><b>${cntWk}</b> אימונים השבוע</span>
+    <span class="stat"><b>${activeWk}</b> מתאמנים פעילים</span>
+    <span class="stat"><b>${pending}</b> ממתינים לפידבק</span>`;
+  $("coachLogs").innerHTML = list.length ? list.map(l=>logCard(l,true)).join("")
+    : `<div class="empty-state">אין אימונים בטווח שנבחר.</div>`;
+}
+
+/* פעולות מאמן/מחיקה (event delegation) */
+document.addEventListener("click", async e=>{
+  const sb=e.target.closest("[data-savefb]");
+  if(sb){ const id=sb.dataset.savefb; const ta=document.querySelector(`[data-fb="${id}"]`);
+    const txt=ta.value.trim(); sb.textContent="שומר…";
+    await patchLog(id,{fb:txt,fbAt:Date.now()});
+    const l=LOGS.find(x=>x.id===id); if(l){ l.fb=txt; l.fbAt=Date.now(); }
+    sb.textContent="✓ נשמר"; setTimeout(renderCoach,700); return; }
+  const db=e.target.closest("[data-del]");
+  if(db){ const id=db.dataset.del; if(!confirm("למחוק את האימון?")) return;
+    await delLogCloud(id); LOGS=LOGS.filter(x=>x.id!==id);
+    renderMember(); renderCoach(); return; }
+});
+$("btnDaily").onclick=async()=>{
+  const txt=$("dailyEdit").value.trim();
+  DAILY={text:txt,date:todayISO()}; $("btnDaily").textContent="מפרסם…";
+  await putDaily(DAILY);
+  $("btnDaily").textContent="✓ פורסם!"; setTimeout(()=>$("btnDaily").textContent="📢 פרסום אימון היום",1200);
+  renderMember();
+};
+$("fltMember").onchange=renderCoach;
+$("fltRange").onchange=renderCoach;
+
+/* ---------- מצב מאמן (קוד) ---------- */
+function unlockCoach(){
+  const p=prompt("קוד מאמן:");
+  if(p===null) return;
+  if(p===COACH_PIN){ coachOn=true; try{ sessionStorage.setItem("bux_coach","1"); }catch(e){} document.body.classList.add("coach-on"); renderCoach(); }
+  else alert("קוד שגוי 🔒");
+}
+$("btnUnlock").onclick=unlockCoach;
+
+/* ---------- מתגי תצוגה ---------- */
+function setView(v){
+  document.body.classList.remove("v-member","v-coach");
+  document.body.classList.add("v-"+v);
+  $("btnMember").classList.toggle("active",v==="member");
+  $("btnCoach").classList.toggle("active",v==="coach");
+  try{ localStorage.setItem("bux_view",v); }catch(e){}
+  if(v==="coach"){ if(coachOn){ document.body.classList.add("coach-on"); renderCoach(); } }
+  else renderMember();
+}
+$("btnMember").onclick=()=>setView("member");
+$("btnCoach").onclick=()=>setView("coach");
+
+/* ---------- רענון מהענן ---------- */
+function refreshIfChanged(){
+  const focused=document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+  const s=sig();
+  if(s!==lastSig && !focused){ lastSig=s; renderMember(); if(coachOn) renderCoach(); }
+}
+
+/* ---------- init ---------- */
+async function init(){
+  if(coachOn) document.body.classList.add("coach-on");
+  renderMe();
+  let v="member"; try{ v=localStorage.getItem("bux_view")||"member"; }catch(e){}
+  setView(v);
+  $("fDate").value=todayISO();
+  await fetchAll(); lastSig=sig(); renderMember(); if(coachOn) renderCoach();
+  if(!MEMBER) askName();
+  setInterval(async()=>{ if(await fetchAll()) refreshIfChanged(); }, 1000*20);
+}
+init();
+</script>
+</body>
+</html>
