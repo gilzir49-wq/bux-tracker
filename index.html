@@ -68,7 +68,11 @@ header.top::before{content:"";position:absolute;inset:0;background:linear-gradie
 .sec .sh .ic{width:30px;height:30px;border-radius:9px;background:var(--green);display:grid;place-items:center;font-size:16px;flex:0 0 auto}
 .sec .sh .st{font-weight:900;font-size:16px}
 .sec .sb{padding:14px 15px}
-.sec .body{white-space:pre-wrap;font-size:15px;line-height:1.55}
+.sec .body{font-size:15px;line-height:1.5}
+.sec .body .bl{white-space:pre-wrap;word-break:break-word}
+.sec .body .bl[dir=ltr]{text-align:left}
+.sec .body .bl[dir=rtl]{text-align:right}
+.sec .body .sp{height:.55em}
 .lb-tag{display:inline-block;font-size:11px;font-weight:900;color:var(--gold);background:rgba(241,201,59,.12);border:1px solid rgba(241,201,59,.35);border-radius:999px;padding:3px 9px;margin-bottom:8px}
 
 /* סרטונים */
@@ -361,6 +365,14 @@ function findResult(date,uid,sid,label){return RESULTS.find(r=>r.date===date&&r.
 function memberHistory(label){return USER?RESULTS.filter(r=>r.uid===USER.uid&&r.metricLabel===label&&isNum(r.value)).sort((a,b)=>a.date<b.date?-1:1):[];}
 
 /* ---------- תצוגת מתאמן ---------- */
+/* כל שורת אימון בכיוון הנכון: אנגלית/מספרים → שמאל-לימין (לא מתהפך), עברית → ימין-לשמאל */
+function bodyHTML(body){
+  return (body||"").split("\n").map(l=>{
+    if(l.trim()==="") return '<div class="bl sp"></div>';
+    const heb=/[֐-׿]/.test(l);
+    return `<div class="bl" dir="${heb?'rtl':'ltr'}">${esc(l)}</div>`;
+  }).join("");
+}
 function videoHTML(v){
   const id=ytId(v.url);
   if(id){
@@ -449,7 +461,7 @@ function renderWorkout(){
       <div class="sh"><div class="ic">${secIcon(s.title)}</div><div class="st">${esc(s.title||"מקטע")}</div></div>
       <div class="sb">
         ${s.leaderboard?'<span class="lb-tag">🏆 לוח תוצאות יומי</span><br>':''}
-        ${s.body?`<div class="body">${esc(s.body)}</div>`:""}
+        ${s.body?`<div class="body">${bodyHTML(s.body)}</div>`:""}
         ${vids.length?`<div class="vids">${vids.map(videoHTML).join("")}</div>`:""}
         ${mets.map(m=>metricHTML(m,s.id)).join("")}
         ${s.leaderboard?leaderboardHTML(s):""}
