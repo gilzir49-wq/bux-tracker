@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="theme-color" content="#1F5D24">
-<title>BUX · מעקב אימונים</title>
+<title>BUX · האימון היומי</title>
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -13,395 +13,489 @@
 <meta name="apple-mobile-web-app-title" content="BUX אימונים">
 <style>
 :root{
-  --bg:#0d1410; --bg2:#13201a; --card:#16241c; --card2:#1d3026;
-  --txt:#f3f7f3; --muted:#9db3a4; --line:#244233;
-  --green:#1F5D24; --green-lite:#2e8b3d; --gold:#F1C93B; --gold-deep:#d9ad1f;
-  --radius:18px; --shadow:0 8px 30px rgba(0,0,0,.45);
+  --bg:#0d1410;--bg2:#13201a;--card:#16241c;--card2:#1d3026;
+  --txt:#f3f7f3;--muted:#9db3a4;--line:#244233;
+  --green:#1F5D24;--green-lite:#2e8b3d;--gold:#F1C93B;--gold-deep:#d9ad1f;
+  --radius:18px;--shadow:0 8px 30px rgba(0,0,0,.45);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
 body{font-family:"Heebo","Assistant",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
   background:radial-gradient(1100px 560px at 100% -8%,#16331f 0,var(--bg) 55%);
-  color:var(--txt);line-height:1.45;min-height:100vh;padding-bottom:40px}
-.wrap{max-width:720px;margin:0 auto;padding:14px}
-.logobar{text-align:center;padding:4px 0 10px}
-.logobar img{width:46%;max-width:150px;height:auto;filter:drop-shadow(0 8px 22px rgba(0,0,0,.55))}
-header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 16px;
+  color:var(--txt);line-height:1.45;min-height:100vh;padding-bottom:46px}
+.wrap{max-width:720px;margin:0 auto;padding:13px}
+.logobar{text-align:center;padding:2px 0 8px}
+.logobar img{width:40%;max-width:128px;height:auto;filter:drop-shadow(0 8px 22px rgba(0,0,0,.55))}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;
   border-radius:var(--radius);background:linear-gradient(135deg,var(--green),#0e1c12);
   box-shadow:var(--shadow);border:1px solid var(--line);position:relative;overflow:hidden}
 header.top::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--gold),var(--green-lite));height:5px}
-.top h1{margin:0;font-size:19px;font-weight:900}
-.top .sub{color:#cfe6d6;font-size:12.5px;margin-top:2px}
-.top .me{text-align:left;font-size:12px;color:#cfe6d6}
-.top .me b{color:var(--gold);font-size:14px;display:block}
+.top h1{margin:0;font-size:18px;font-weight:900}
+.top .sub{color:#cfe6d6;font-size:12px;margin-top:2px}
+.top .me{text-align:left;font-size:11px;color:#cfe6d6}
+.top .me b{color:var(--gold);font-size:13px;display:block}
+.top .me span{cursor:pointer;text-decoration:underline}
 
-.viewtoggle{display:flex;background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:5px;margin:14px 0;gap:5px}
+.viewtoggle{display:flex;background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:5px;margin:13px 0 10px;gap:5px}
 .viewtoggle button{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-weight:800;font-size:15px;padding:12px;border-radius:999px;cursor:pointer;transition:.15s}
 .viewtoggle button.active{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1400;box-shadow:0 4px 14px rgba(241,201,59,.3)}
 
-.daily{border-radius:var(--radius);border:1px solid var(--line);background:linear-gradient(135deg,#1d3026,#162a1d);box-shadow:var(--shadow);padding:15px 16px;margin-bottom:14px}
-.daily .lbl{font-size:12px;font-weight:900;color:var(--gold);letter-spacing:.5px}
-.daily .txt{font-size:16px;font-weight:700;white-space:pre-wrap;margin-top:5px}
-.daily .empty{color:var(--muted);font-weight:500;font-size:14px}
+/* פס ימים */
+.weekbar{display:flex;align-items:center;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:8px;margin-bottom:8px}
+.weekbar .nav{background:var(--bg2);border:1px solid var(--line);color:var(--txt);border-radius:10px;width:34px;height:46px;flex:0 0 auto;font-size:16px;cursor:pointer}
+.days{display:flex;flex:1;gap:3px}
+.day{flex:1;text-align:center;border-radius:11px;padding:6px 2px;cursor:pointer;border:1px solid transparent}
+.day .dl{font-size:11px;color:var(--muted);font-weight:700}
+.day .dn{font-size:16px;font-weight:900;margin-top:2px}
+.day .marks{height:12px;font-size:10px;line-height:1}
+.day.sel{background:linear-gradient(135deg,var(--green-lite),var(--green));border-color:var(--gold)}
+.day.sel .dl{color:#dff5e4}
+.day .prog{color:var(--gold)}
+.day .att{color:var(--green-lite)}
+.datepick{display:flex;justify-content:center;margin-bottom:12px}
+.datepick input{background:var(--bg2);color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font:inherit;font-size:13px}
 
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
-.card h3{margin:0 0 11px;font-size:16px;display:flex;align-items:center;gap:7px}
-label.fld{display:block;font-size:13px;color:var(--muted);font-weight:700;margin:10px 0 0}
-input,select,textarea{width:100%;margin-top:5px;background:var(--bg2);color:var(--txt);border:1px solid var(--line);
-  border-radius:11px;padding:11px;font:inherit;font-size:15px}
-textarea{min-height:60px;resize:vertical}
-input[type=range]{padding:0;accent-color:var(--gold)}
-.rpe-row{display:flex;align-items:center;gap:10px;margin-top:6px}
-.rpe-row output{font-size:22px;font-weight:900;min-width:54px;text-align:center}
-.btn{width:100%;border:0;font:inherit;font-weight:900;font-size:16px;padding:14px;border-radius:13px;cursor:pointer;margin-top:14px;
+.syncdot{font-size:11px;color:var(--muted);text-align:center;margin:0 0 10px;font-weight:700}
+
+/* כותרת תוכנית */
+.proghead{text-align:center;margin:4px 0 12px}
+.proghead .pt{font-size:24px;font-weight:900}
+.proghead .pd{font-size:13px;color:var(--muted)}
+
+/* כרטיס מקטע */
+.sec{background:var(--card);border:1px solid var(--line);border-radius:16px;margin-bottom:13px;overflow:hidden}
+.sec .sh{display:flex;align-items:center;gap:10px;padding:13px 15px;background:var(--card2);border-bottom:1px solid var(--line)}
+.sec .sh .ic{width:30px;height:30px;border-radius:9px;background:var(--green);display:grid;place-items:center;font-size:16px;flex:0 0 auto}
+.sec .sh .st{font-weight:900;font-size:16px}
+.sec .sb{padding:14px 15px}
+.sec .body{white-space:pre-wrap;font-size:15px;line-height:1.55}
+.lb-tag{display:inline-block;font-size:11px;font-weight:900;color:var(--gold);background:rgba(241,201,59,.12);border:1px solid rgba(241,201,59,.35);border-radius:999px;padding:3px 9px;margin-bottom:8px}
+
+/* סרטונים */
+.vids{display:flex;gap:9px;overflow-x:auto;margin-top:12px;padding-bottom:4px}
+.vid{flex:0 0 auto;width:150px;border-radius:11px;overflow:hidden;background:#000;position:relative;cursor:pointer;border:1px solid var(--line)}
+.vid img{width:100%;height:90px;object-fit:cover;display:block;opacity:.9}
+.vid .play{position:absolute;inset:0;display:grid;place-items:center;font-size:30px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.7)}
+.vid .vlabel{position:absolute;bottom:0;right:0;left:0;background:linear-gradient(0deg,rgba(0,0,0,.8),transparent);color:#fff;font-size:12px;font-weight:700;padding:14px 8px 6px}
+.vid iframe{width:100%;height:90px;border:0;display:block}
+.vid.open{width:260px}.vid.open iframe{height:150px}
+
+/* מדדים / תוצאות */
+.metric{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:10px}
+.metric .top2{display:flex;align-items:center;gap:8px}
+.metric .ml{font-weight:800;font-size:14px;flex:1}
+.metric .ml .mu{color:var(--muted);font-weight:600;font-size:12px}
+.metric input.mval{width:110px;background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:9px;font:inherit;font-size:15px;text-align:center}
+.metric .hist{background:var(--card2);border:1px solid var(--line);color:var(--gold);border-radius:9px;width:40px;height:38px;cursor:pointer;font-size:15px;flex:0 0 auto}
+.metric .last{font-size:11.5px;color:var(--muted);margin-top:5px}
+.metric .pr{color:var(--gold);font-weight:800}
+/* לידרבורד */
+.lboard{margin-top:10px;border-top:1px dashed var(--line);padding-top:9px}
+.lboard .lt{font-size:12px;font-weight:900;color:var(--gold);margin-bottom:6px}
+.lrow{display:flex;justify-content:space-between;font-size:13.5px;padding:4px 2px;border-bottom:1px solid rgba(255,255,255,.04)}
+.lrow .rk{color:var(--muted);font-weight:800;margin-left:6px}
+.lrow.mine{color:var(--gold);font-weight:800}
+
+.attbtn{width:100%;border:0;font:inherit;font-weight:900;font-size:16px;padding:14px;border-radius:13px;cursor:pointer;margin:4px 0 14px;
+  background:var(--card);color:var(--txt);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;gap:8px}
+.attbtn.done{background:linear-gradient(135deg,var(--green-lite),var(--green));color:#fff;border:0}
+
+.empty-state{text-align:center;color:var(--muted);padding:34px 16px;font-size:14px}
+.btn{width:100%;border:0;font:inherit;font-weight:900;font-size:16px;padding:14px;border-radius:13px;cursor:pointer;margin-top:12px;
   background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1400;display:flex;align-items:center;justify-content:center;gap:8px}
 .btn:active{transform:scale(.99)}
-.btn.sec{background:var(--card2);color:var(--txt);border:1px solid var(--line);font-size:14px;padding:11px;margin-top:0}
-.btn.sm{width:auto;padding:8px 12px;font-size:13px;margin:0}
+.btn.sec2{background:var(--card2);color:var(--txt);border:1px solid var(--line);font-size:14px}
+.btn.sm{width:auto;padding:9px 13px;font-size:13px;margin:0}
 .btn.danger{background:transparent;color:#fca5a5;border:1px solid #7f2d1d}
+.btn.row{margin-top:8px}
 
-/* רשומת אימון */
-.log{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:13px;margin-bottom:11px;border-right:5px solid var(--green-lite)}
-.log .lh{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
-.log .who{font-weight:900;font-size:15px}
-.log .date{font-size:12px;color:var(--muted);font-weight:700}
-.log .type{font-size:17px;font-weight:900;margin-top:6px}
-.log .res{font-size:14px;color:#dceae0;margin-top:3px}
-.log .rpe{font-size:12px;font-weight:900;background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:4px 10px;white-space:nowrap}
-.log .notes{font-size:13.5px;color:#cfe6d6;margin-top:7px;background:rgba(255,255,255,.04);border-radius:9px;padding:8px 10px}
-.log .fb{margin-top:9px;background:rgba(241,201,59,.12);border:1px solid rgba(241,201,59,.4);border-radius:11px;padding:9px 11px}
-.log .fb .fl{font-size:11px;font-weight:900;color:var(--gold);letter-spacing:.3px}
-.log .fb .ft{font-size:14px;margin-top:3px;white-space:pre-wrap}
-.log .nofb{font-size:12.5px;color:var(--muted);margin-top:8px;font-style:italic}
-.log .acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-.log .fbedit{margin-top:9px}
-.log .fbedit textarea{min-height:48px}
-
-.filters{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-.filters select{flex:1;min-width:130px}
-.empty-state{text-align:center;color:var(--muted);padding:30px 14px;font-size:14px}
-.section-title{font-size:13px;font-weight:900;color:var(--gold);letter-spacing:.5px;margin:18px 2px 9px}
-.statline{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700}
-.stat b{color:var(--gold)}
-.syncdot{font-size:11px;color:var(--muted);text-align:center;margin:2px 0 12px;font-weight:700}
-
+/* עורך מאמן */
 #coachLock{text-align:center;padding:26px 16px}
 #coachLock .big{font-size:40px}
 #coachLock p{color:var(--muted);font-size:14px;margin:8px 0 16px}
+.ed label{display:block;font-size:12px;color:var(--muted);font-weight:800;margin:11px 0 0}
+.ed input,.ed textarea{width:100%;margin-top:5px;background:var(--bg2);color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit;font-size:15px}
+.ed textarea{min-height:90px;resize:vertical}
+.edsec{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px;margin-top:12px}
+.edsec .eh{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.edsec .eh .num{font-weight:900;color:var(--gold)}
+.subrow{display:flex;gap:7px;margin-top:7px;align-items:center}
+.subrow input{margin-top:0}
+.subrow .rm{background:transparent;border:1px solid #7f2d1d;color:#fca5a5;border-radius:9px;width:38px;height:40px;flex:0 0 auto;cursor:pointer}
+.mini{font-size:12px;color:var(--muted);font-weight:800;margin-top:10px}
+.chk{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:14px;font-weight:700}
+.chk input{width:auto;margin:0}
+.barbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 
-/* תצוגות */
+footer{color:var(--muted);font-size:12px;text-align:center;margin-top:24px;line-height:1.7}
+footer b{color:var(--gold)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:50;padding:18px}
+.modal.show{display:flex}
+.modal .box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;max-width:380px;width:100%;max-height:80vh;overflow:auto}
+.modal h3{margin:0 0 6px;font-size:18px}
+.modal p{color:var(--muted);font-size:13px;margin:0 0 12px}
+.modal input{width:100%;background:var(--bg2);color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:11px;font:inherit;font-size:15px}
+.histrow{display:flex;justify-content:space-between;padding:7px 2px;border-bottom:1px solid var(--line);font-size:14px}
+.histrow.best{color:var(--gold);font-weight:800}
+
 #viewMember,#viewCoach{display:none}
 body.v-member #viewMember{display:block}
 body.v-coach #viewCoach{display:block}
 body:not(.coach-on) #coachContent{display:none}
 body.coach-on #coachLock{display:none}
-
-footer{color:var(--muted);font-size:12px;text-align:center;margin-top:24px;line-height:1.7}
-footer b{color:var(--gold)}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:18px}
-.modal.show{display:flex}
-.modal .box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;max-width:360px;width:100%}
-.modal h3{margin:0 0 6px;font-size:18px}
-.modal p{color:var(--muted);font-size:13px;margin:0 0 12px}
 </style>
 </head>
 <body class="v-member">
 <div class="wrap">
 
 <div class="logobar"><img src="logo.png" alt="CrossFit BUX"></div>
-
 <header class="top">
-  <div>
-    <h1>מעקב אימונים 🏋️</h1>
-    <div class="sub">CrossFit BUX · יהוד</div>
-  </div>
+  <div><h1>האימון היומי 🦌</h1><div class="sub">CrossFit BUX · יהוד</div></div>
   <div class="me" id="meBox"></div>
 </header>
 
 <div class="viewtoggle">
-  <button id="btnMember">🏋️ האימון שלי</button>
-  <button id="btnCoach">👀 מאמן</button>
+  <button id="btnMember">🏋️ מתאמן</button>
+  <button id="btnCoach">🧠 מאמן</button>
 </div>
 
+<!-- פס ימים -->
+<div class="weekbar">
+  <button class="nav" id="prevWk">›</button>
+  <div class="days" id="daysStrip"></div>
+  <button class="nav" id="nextWk">‹</button>
+</div>
+<div class="datepick"><input type="date" id="datePick"></div>
 <div class="syncdot" id="syncDot">☁️ מתחבר…</div>
-
-<!-- באנר "אימון היום" — נראה לכולם -->
-<div class="daily" id="dailyBanner" style="display:none">
-  <div class="lbl">🎯 אימון היום</div>
-  <div class="txt" id="dailyTxt"></div>
-</div>
 
 <!-- ===================== מתאמן ===================== -->
 <div id="viewMember">
-  <div class="card">
-    <h3>➕ רישום אימון</h3>
-    <label class="fld">תאריך
-      <input type="date" id="fDate"></label>
-    <label class="fld">סוג / שם האימון
-      <input type="text" id="fType" placeholder="למשל: Fran · כוח רגליים · EMOM 20'"></label>
-    <label class="fld">תוצאה / משקל / זמן
-      <input type="text" id="fResult" placeholder="למשל: 4:32 · 80 ק״ג · 5 סבבים"></label>
-    <label class="fld">איך הרגשת? (1–10)
-      <div class="rpe-row">
-        <input type="range" id="fRpe" min="1" max="10" value="7">
-        <output id="fRpeOut">7 💪</output>
-      </div></label>
-    <label class="fld">הערות (אופציונלי)
-      <textarea id="fNotes" placeholder="תחושות, כאבים, מה היה קשה, מה רוצים לשפר…"></textarea></label>
-    <button class="btn" id="btnAdd">✓ שמירת האימון</button>
-  </div>
-
-  <div class="section-title">ההיסטוריה שלי</div>
-  <div id="myLogs"></div>
+  <div id="memberProgram"></div>
 </div>
 
 <!-- ===================== מאמן ===================== -->
 <div id="viewCoach">
   <div id="coachLock">
     <div class="big">🔒</div>
-    <p>אזור מאמן — צפייה בכל המתאמנים ומתן פידבק.<br>הזינו את הקוד כדי להיכנס.</p>
+    <p>אזור מאמן — כתיבת תוכנית האימון היומית.<br>הזינו את הקוד כדי להיכנס.</p>
     <button class="btn sm" id="btnUnlock" style="margin:0 auto">🔓 כניסה עם קוד</button>
   </div>
-
   <div id="coachContent">
-    <div class="card">
-      <h3>🎯 אימון היום (נראה לכל המתאמנים)</h3>
-      <textarea id="dailyEdit" placeholder="כתוב כאן את ה-WOD / תוכנית היום…"></textarea>
-      <button class="btn" id="btnDaily">📢 פרסום אימון היום</button>
-    </div>
-
-    <div class="section-title">פעילות מתאמנים</div>
-    <div class="statline" id="coachStats"></div>
-    <div class="filters">
-      <select id="fltMember"><option value="">כל המתאמנים</option></select>
-      <select id="fltRange">
-        <option value="7">7 ימים אחרונים</option>
-        <option value="30">30 ימים אחרונים</option>
-        <option value="0">הכל</option>
-      </select>
-    </div>
-    <div id="coachLogs"></div>
+    <div id="coachEditor"></div>
   </div>
 </div>
 
-<footer>
-  <b>CrossFit BUX</b> · מעקב אימונים<br>
-  שמרו את הלינק במסך הבית לגישה מהירה 💪
-</footer>
+<footer><b>CrossFit BUX</b> · האימון היומי<br>שמרו את הלינק במסך הבית 💪</footer>
 </div>
 
-<!-- מודאל הזנת שם -->
-<div class="modal" id="nameModal">
-  <div class="box">
-    <h3>ברוכים הבאים! 👋</h3>
-    <p>איך קוראים לך? (כדי שהמאמן ידע מי רשם את האימון)</p>
-    <input type="text" id="nameInput" placeholder="השם שלך">
-    <button class="btn" id="nameSave">המשך</button>
-  </div>
-</div>
+<!-- מודאלים -->
+<div class="modal" id="nameModal"><div class="box">
+  <h3>ברוכים הבאים! 👋</h3>
+  <p>איך קוראים לך? (כדי שנשייך את התוצאות אליך)</p>
+  <input type="text" id="nameInput" placeholder="השם שלך">
+  <button class="btn" id="nameSave">המשך</button>
+</div></div>
+
+<div class="modal" id="histModal"><div class="box">
+  <h3 id="histTitle">היסטוריה</h3>
+  <p id="histSub"></p>
+  <div id="histList"></div>
+  <button class="btn sec2" id="histClose" style="margin-top:14px">סגירה</button>
+</div></div>
 
 <!-- ============================================================= -->
 <!-- ===============   הגדרות (לעריכה קלה)   ===================== -->
 <!-- ============================================================= -->
 <script id="CONFIG">
-/* כתובת מסד הנתונים והקוד למאמן.
-   COACH_PIN = הקוד שמכניס לאזור המאמן (פידבק + צפייה בכולם). שנה אם תרצה. */
+/* COACH_PIN = הקוד שמכניס לאזור המאמן (כתיבת תוכניות). שנה אם תרצה. */
 const DB   = "https://command-center-gal-default-rtdb.europe-west1.firebasedatabase.app";
 const NODE = "bux-tracker";
 const COACH_PIN = "bux2026";
+/* אמוג'י לכל סוג מקטע (לפי מילה בכותרת) */
+const SEC_ICONS = [
+  [/חימום|warm/i,"🔥"],[/כוח|strength|weightlift|משקול/i,"🏋️"],
+  [/clean|חטיפה|נטיש|הנפה|סנאצ|snatch/i,"💪"],[/crossfit|metcon|wod|מטקון/i,"⚡"],
+  [/ריצה|run|אירובי|cardio/i,"🏃"],[/מתיחות|שחרור|cool|mobility|מוביל/i,"🧘"],[/ליבה|core|בטן/i,"🎯"]
+];
 </script>
 
 <script>
-/* ---------- עזרים ---------- */
-const $ = id => document.getElementById(id);
-const pad = n => String(n).padStart(2,"0");
-const todayISO = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
-const genId = () => `${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
-const esc = s => (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-function fmtDate(iso){ if(!iso) return ""; const [y,m,d]=iso.split("-"); return `${d}.${m}.${y}`; }
-function rpeEmoji(v){ v=+v; return v>=9?"🔥":v>=7?"💪":v>=4?"😅":"😣"; }
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,"0");
+const esc=s=>(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const HE_L=["א","ב","ג","ד","ה","ו","ש"];
+function isoToDate(iso){const[y,m,d]=iso.split("-").map(Number);return new Date(y,m-1,d);}
+function dateToISO(dt){return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`;}
+function addDays(iso,n){const dt=isoToDate(iso);dt.setDate(dt.getDate()+n);return dateToISO(dt);}
+function todayISO(){return dateToISO(new Date());}
+function weekOf(iso){const dt=isoToDate(iso);const start=addDays(iso,-dt.getDay());return Array.from({length:7},(_,i)=>addDays(start,i));}
+function fmtLong(iso){const[y,m,d]=iso.split("-");return `${d}.${m}.${y}`;}
+function genId(){return `${Date.now()}-${Math.random().toString(36).slice(2,7)}`;}
+function secIcon(t){for(const[re,ic]of SEC_ICONS)if(re.test(t||""))return ic;return "📋";}
+function ytId(u){const m=(u||"").match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/);return m?m[1]:"";}
+function isNum(v){return v!==""&&v!=null&&!isNaN(parseFloat(v));}
 
 /* ---------- מצב ---------- */
-let LOGS=[], DAILY=null, coachOn=false, lastSig="";
-let MEMBER = "";
-try{ MEMBER = localStorage.getItem("bux_member")||""; }catch(e){}
-try{ coachOn = sessionStorage.getItem("bux_coach")==="1"; }catch(e){}
+let SELDATE=todayISO(), PROG=null, PROGDATES={}, RESULTS=[], DRAFT=null, coachOn=false;
+let MEMBER=""; try{MEMBER=localStorage.getItem("bux_member")||"";}catch(e){}
+try{coachOn=sessionStorage.getItem("bux_coach")==="1";}catch(e){}
 
-/* ---------- ענן (Firebase RTDB) ---------- */
-function setSync(t){ $("syncDot").textContent=t; }
-async function fetchAll(){
-  try{
-    const r=await fetch(`${DB}/${NODE}.json`,{cache:"no-store"});
-    if(!r.ok){ setSync("⚠️ אין חיבור"); return false; }
-    const o=await r.json()||{};
-    const logsObj=o.logs||{};
-    LOGS=Object.entries(logsObj).map(([id,v])=>({id,...v}))
-         .sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-    DAILY=o.daily||null;
-    setSync("☁️ מסונכרן");
-    return true;
-  }catch(e){ setSync("⚠️ אין חיבור"); return false; }
+/* ---------- ענן ---------- */
+function setSync(t){$("syncDot").textContent=t;}
+async function fetchProgram(d){try{const r=await fetch(`${DB}/${NODE}/program/${d}.json`,{cache:"no-store"});return r.ok?await r.json():null;}catch(e){return null;}}
+async function fetchProgDates(){try{const r=await fetch(`${DB}/${NODE}/program.json?shallow=true`);return r.ok?(await r.json()||{}):{};}catch(e){return {};}}
+async function fetchResults(){try{const r=await fetch(`${DB}/${NODE}/results.json`,{cache:"no-store"});const o=r.ok?(await r.json()||{}):{};return Object.entries(o).map(([id,v])=>({id,...v}));}catch(e){return [];}}
+async function putProgram(d,p){await fetch(`${DB}/${NODE}/program/${d}.json`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)});}
+async function delProgramCloud(d){await fetch(`${DB}/${NODE}/program/${d}.json`,{method:"DELETE"});}
+async function putResult(e){await fetch(`${DB}/${NODE}/results/${e.id}.json`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(e)});}
+async function delResultCloud(id){await fetch(`${DB}/${NODE}/results/${id}.json`,{method:"DELETE"});}
+
+async function loadAll(){
+  const [p,pd,res]=await Promise.all([fetchProgram(SELDATE),fetchProgDates(),fetchResults()]);
+  PROG=p; PROGDATES=pd; RESULTS=res; setSync("☁️ מסונכרן");
 }
-async function putLog(entry){ await fetch(`${DB}/${NODE}/logs/${entry.id}.json`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(entry)}); }
-async function patchLog(id,patch){ await fetch(`${DB}/${NODE}/logs/${id}.json`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(patch)}); }
-async function delLogCloud(id){ await fetch(`${DB}/${NODE}/logs/${id}.json`,{method:"DELETE"}); }
-async function putDaily(obj){ await fetch(`${DB}/${NODE}/daily.json`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(obj)}); }
 
-/* חתימה כדי לרענן רק כשיש שינוי אמיתי */
-function sig(){ return LOGS.map(l=>l.id+(l.fbAt||0)).join(",")+"|"+(DAILY?DAILY.text+DAILY.date:""); }
-
-/* ---------- שם מתאמן ---------- */
+/* ---------- שם ---------- */
 function renderMe(){
-  $("meBox").innerHTML = MEMBER ? `מתאמן<b>${esc(MEMBER)}</b><span style="cursor:pointer;text-decoration:underline">שינוי שם</span>` : "";
-  const sp=$("meBox").querySelector("span"); if(sp) sp.onclick=askName;
+  $("meBox").innerHTML=MEMBER?`מתאמן<b>${esc(MEMBER)}</b><span>שינוי שם</span>`:"";
+  const sp=$("meBox").querySelector("span"); if(sp)sp.onclick=askName;
 }
-function askName(){ $("nameInput").value=MEMBER; $("nameModal").classList.add("show"); $("nameInput").focus(); }
-$("nameSave").onclick=()=>{
-  const v=$("nameInput").value.trim();
-  if(!v){ $("nameInput").focus(); return; }
-  MEMBER=v; try{ localStorage.setItem("bux_member",v); }catch(e){}
-  $("nameModal").classList.remove("show"); renderMe(); renderMember();
-};
+function askName(){$("nameInput").value=MEMBER;$("nameModal").classList.add("show");$("nameInput").focus();}
+$("nameSave").onclick=()=>{const v=$("nameInput").value.trim();if(!v){$("nameInput").focus();return;}MEMBER=v;try{localStorage.setItem("bux_member",v);}catch(e){}$("nameModal").classList.remove("show");renderMe();renderMember();};
 
-/* ---------- רישום אימון ---------- */
-$("fRpe").oninput=e=>{ $("fRpeOut").textContent=`${e.target.value} ${rpeEmoji(e.target.value)}`; };
-$("btnAdd").onclick=async()=>{
-  if(!MEMBER){ askName(); return; }
-  const type=$("fType").value.trim();
-  if(!type){ $("fType").focus(); return; }
-  const entry={ id:genId(), member:MEMBER, date:$("fDate").value||todayISO(),
-    type, result:$("fResult").value.trim(), rpe:+$("fRpe").value,
-    notes:$("fNotes").value.trim(), fb:"", fbAt:0, createdAt:Date.now() };
-  $("btnAdd").textContent="שומר…"; $("btnAdd").disabled=true;
-  await putLog(entry);
-  LOGS.unshift(entry);
-  $("fType").value=""; $("fResult").value=""; $("fNotes").value=""; $("fRpe").value=7; $("fRpeOut").textContent="7 💪";
-  $("btnAdd").textContent="✓ נשמר!"; setTimeout(()=>{ $("btnAdd").textContent="✓ שמירת האימון"; $("btnAdd").disabled=false; },1200);
-  renderMember();
-};
-
-/* ---------- כרטיס אימון ---------- */
-function logCard(l,coach){
-  const fb = l.fb
-    ? `<div class="fb"><div class="fl">📣 פידבק מהמאמן</div><div class="ft">${esc(l.fb)}</div></div>`
-    : (coach?"":`<div class="nofb">⏳ ממתין לפידבק מהמאמן</div>`);
-  const notes = l.notes?`<div class="notes">📝 ${esc(l.notes)}</div>`:"";
-  const coachFb = coach?`
-    <div class="fbedit">
-      <textarea data-fb="${l.id}" placeholder="כתוב פידבק למתאמן…">${esc(l.fb||"")}</textarea>
-      <div class="acts">
-        <button class="btn sm" data-savefb="${l.id}">💾 שמירת פידבק</button>
-        <button class="btn sm danger" data-del="${l.id}">🗑 מחיקה</button>
-      </div>
-    </div>`:"";
-  const ownDel = (!coach && l.member===MEMBER)?`<div class="acts"><button class="btn sm danger" data-del="${l.id}">🗑 מחיקה</button></div>`:"";
-  return `<div class="log">
-    <div class="lh">
-      <div><div class="who">${coach?esc(l.member):"🏋️ "+esc(l.member)}</div><div class="date">${fmtDate(l.date)}</div></div>
-      <div class="rpe">${rpeEmoji(l.rpe)} ${l.rpe||"-"}/10</div>
-    </div>
-    <div class="type">${esc(l.type)}</div>
-    ${l.result?`<div class="res">🎯 ${esc(l.result)}</div>`:""}
-    ${notes}${fb}${coachFb}${ownDel}
-  </div>`;
+/* ---------- פס ימים ---------- */
+function myAttended(date){return RESULTS.some(r=>r.member===MEMBER&&r.date===date&&r.metricLabel==="__att__");}
+function renderWeek(){
+  const wk=weekOf(SELDATE);
+  $("daysStrip").innerHTML=wk.map(d=>{
+    const dt=isoToDate(d), dl=HE_L[dt.getDay()], dn=dt.getDate();
+    const hasProg=!!PROGDATES[d], att=myAttended(d);
+    return `<div class="day ${d===SELDATE?'sel':''}" data-d="${d}">
+      <div class="dl">${dl}</div><div class="dn">${dn}</div>
+      <div class="marks">${att?'<span class="att">✓</span>':(hasProg?'<span class="prog">●</span>':'')}</div></div>`;
+  }).join("");
+  $("datePick").value=SELDATE;
 }
+$("daysStrip").addEventListener("click",e=>{const d=e.target.closest("[data-d]");if(d){SELDATE=d.dataset.d;reload();}});
+$("prevWk").onclick=()=>{SELDATE=addDays(SELDATE,-7);reload();};
+$("nextWk").onclick=()=>{SELDATE=addDays(SELDATE,7);reload();};
+$("datePick").onchange=e=>{SELDATE=e.target.value||todayISO();reload();};
+
+/* ---------- תוצאות עזר ---------- */
+function findResult(date,member,sid,label){return RESULTS.find(r=>r.date===date&&r.member===member&&r.sectionId===sid&&r.metricLabel===label);}
+function memberHistory(label){return RESULTS.filter(r=>r.member===MEMBER&&r.metricLabel===label&&isNum(r.value)).sort((a,b)=>a.date<b.date?-1:1);}
 
 /* ---------- תצוגת מתאמן ---------- */
+function videoHTML(v,si,vi){
+  const id=ytId(v.url);
+  const thumb=id?`https://img.youtube.com/vi/${id}/mqdefault.jpg`:"";
+  return `<div class="vid" data-yt="${id}" data-si="${si}" data-vi="${vi}">
+    ${id?`<img src="${thumb}" alt=""><span class="play">▶</span>`:`<div style="height:90px;display:grid;place-items:center;color:#fff">▶</div>`}
+    <span class="vlabel">${esc(v.label||"סרטון")}</span></div>`;
+}
+function metricHTML(m,sid){
+  const ex=findResult(SELDATE,MEMBER,sid,m.label);
+  const hist=memberHistory(m.label);
+  const best=hist.length?Math.max(...hist.map(h=>parseFloat(h.value))):null;
+  let lastTxt="";
+  if(hist.length){
+    const prev=hist.filter(h=>h.date<SELDATE).slice(-1)[0];
+    if(prev) lastTxt=`קודם: ${esc(prev.value)} ${esc(m.unit||"")} · שיא: <span class="pr">${best}</span>`;
+    else if(best!=null) lastTxt=`שיא אישי: <span class="pr">${best}</span> ${esc(m.unit||"")}`;
+  }
+  return `<div class="metric">
+    <div class="top2">
+      <div class="ml">${esc(m.label)} ${m.unit?`<span class="mu">(${esc(m.unit)})</span>`:""}</div>
+      <input class="mval" data-sid="${sid}" data-label="${esc(m.label)}" data-unit="${esc(m.unit||"")}" inputmode="decimal" value="${ex?esc(ex.value):""}" placeholder="תוצאה">
+      <button class="hist" data-histlabel="${esc(m.label)}" data-histunit="${esc(m.unit||"")}">📈</button>
+    </div>
+    ${lastTxt?`<div class="last">${lastTxt}</div>`:""}
+  </div>`;
+}
+function leaderboardHTML(sec){
+  const m=sec.metrics&&sec.metrics[0]; if(!m) return "";
+  let rows=RESULTS.filter(r=>r.date===SELDATE&&r.sectionId===sec.id&&r.metricLabel===m.label&&r.value!=="");
+  if(!rows.length) return `<div class="lboard"><div class="lt">🏆 לוח תוצאות</div><div class="last">עדיין אין תוצאות להיום</div></div>`;
+  const numeric=rows.every(r=>isNum(r.value));
+  rows.sort((a,b)=>numeric?(parseFloat(b.value)-parseFloat(a.value)):(a.member<b.member?-1:1));
+  return `<div class="lboard"><div class="lt">🏆 לוח תוצאות — ${esc(m.label)}</div>`+
+    rows.map((r,i)=>`<div class="lrow ${r.member===MEMBER?'mine':''}"><span><span class="rk">${i+1}.</span>${esc(r.member)}</span><span>${esc(r.value)} ${esc(m.unit||"")}</span></div>`).join("")+`</div>`;
+}
 function renderMember(){
-  $("fDate").value = $("fDate").value || todayISO();
-  if(DAILY&&DAILY.text){ $("dailyBanner").style.display="block"; $("dailyTxt").textContent=DAILY.text; }
-  else $("dailyBanner").style.display="none";
-  const mine=LOGS.filter(l=>l.member===MEMBER);
-  $("myLogs").innerHTML = mine.length ? mine.map(l=>logCard(l,false)).join("")
-    : `<div class="empty-state">עדיין לא רשמת אימונים.<br>רשום את הראשון למעלה! 💪</div>`;
+  renderWeek();
+  if(!PROG||!PROG.sections||!PROG.sections.length){
+    $("memberProgram").innerHTML=`<div class="proghead"><div class="pd">${fmtLong(SELDATE)}</div></div>
+      <div class="empty-state">אין אימון מתוכנן ליום הזה 🌙<br>בחרו יום אחר מהלוח למעלה.</div>`;
+    return;
+  }
+  const att=myAttended(SELDATE);
+  let html=`<div class="proghead"><div class="pt">${esc(PROG.title||"אימון היום")}</div><div class="pd">${fmtLong(SELDATE)}</div></div>`;
+  html+=`<button class="attbtn ${att?'done':''}" id="attBtn">${att?'✓ סימנת שהתאמנת היום':'הייתי באימון הזה 💪'}</button>`;
+  html+=PROG.sections.map((s,si)=>{
+    const vids=(s.videos||[]).filter(v=>v.url||v.label);
+    const mets=(s.metrics||[]).filter(m=>m.label);
+    return `<div class="sec">
+      <div class="sh"><div class="ic">${secIcon(s.title)}</div><div class="st">${esc(s.title||"מקטע")}</div></div>
+      <div class="sb">
+        ${s.leaderboard?'<span class="lb-tag">🏆 לוח תוצאות יומי</span><br>':''}
+        ${s.body?`<div class="body">${esc(s.body)}</div>`:""}
+        ${vids.length?`<div class="vids">${vids.map((v,vi)=>videoHTML(v,si,vi)).join("")}</div>`:""}
+        ${mets.map(m=>metricHTML(m,s.id)).join("")}
+        ${s.leaderboard?leaderboardHTML(s):""}
+      </div></div>`;
+  }).join("");
+  $("memberProgram").innerHTML=html;
+  $("attBtn").onclick=toggleAttend;
+}
+async function toggleAttend(){
+  if(!MEMBER){askName();return;}
+  const ex=findResult(SELDATE,MEMBER,"__day__","__att__");
+  if(ex){ await delResultCloud(ex.id); RESULTS=RESULTS.filter(r=>r.id!==ex.id); }
+  else{ const e={id:genId(),date:SELDATE,member:MEMBER,sectionId:"__day__",metricLabel:"__att__",value:"1",unit:"",createdAt:Date.now()}; await putResult(e); RESULTS.push(e); }
+  renderMember();
 }
 
-/* ---------- תצוגת מאמן ---------- */
+/* לחיצות מתאמן: וידאו, היסטוריה, הזנת תוצאה */
+$("memberProgram").addEventListener("click",e=>{
+  const vid=e.target.closest(".vid");
+  if(vid&&!vid.classList.contains("open")&&vid.dataset.yt){
+    vid.classList.add("open");
+    vid.innerHTML=`<iframe src="https://www.youtube.com/embed/${vid.dataset.yt}?autoplay=1" allow="autoplay;encrypted-media" allowfullscreen></iframe>`;
+    return;
+  }
+  const hb=e.target.closest(".hist");
+  if(hb){ showHistory(hb.dataset.histlabel,hb.dataset.histunit); return; }
+});
+$("memberProgram").addEventListener("change",async e=>{
+  const inp=e.target.closest(".mval"); if(!inp) return;
+  if(!MEMBER){askName();return;}
+  const sid=inp.dataset.sid,label=inp.dataset.label,unit=inp.dataset.unit,val=inp.value.trim();
+  let ex=findResult(SELDATE,MEMBER,sid,label);
+  if(!val){ if(ex){await delResultCloud(ex.id);RESULTS=RESULTS.filter(r=>r.id!==ex.id);} return; }
+  if(ex){ ex.value=val; ex.unit=unit; await putResult(ex); }
+  else{ ex={id:genId(),date:SELDATE,member:MEMBER,sectionId:sid,metricLabel:label,value:val,unit,createdAt:Date.now()}; await putResult(ex); RESULTS.push(ex); }
+});
+
+/* היסטוריה */
+function showHistory(label,unit){
+  const h=memberHistory(label);
+  $("histTitle").textContent="📈 "+label;
+  if(!h.length){ $("histSub").textContent="עדיין אין תוצאות שמורות."; $("histList").innerHTML=""; }
+  else{
+    const best=Math.max(...h.map(x=>parseFloat(x.value)));
+    $("histSub").textContent=`${h.length} תוצאות · שיא אישי ${best} ${unit||""}`;
+    $("histList").innerHTML=h.slice().reverse().map(x=>`<div class="histrow ${parseFloat(x.value)===best?'best':''}"><span>${fmtLong(x.date)}</span><span>${esc(x.value)} ${esc(unit||"")} ${parseFloat(x.value)===best?'🏆':''}</span></div>`).join("");
+  }
+  $("histModal").classList.add("show");
+}
+$("histClose").onclick=()=>$("histModal").classList.remove("show");
+
+/* ---------- עורך מאמן ---------- */
+function blankSection(){return {id:genId(),title:"",body:"",videos:[],metrics:[],leaderboard:false};}
+function startDraft(){ DRAFT = PROG?JSON.parse(JSON.stringify(PROG)):{title:"",sections:[blankSection()]}; if(!DRAFT.sections||!DRAFT.sections.length)DRAFT.sections=[blankSection()]; DRAFT.sections.forEach(s=>{s.videos=s.videos||[];s.metrics=s.metrics||[];s.id=s.id||genId();}); }
+function harvest(){
+  if(!DRAFT) return;
+  DRAFT.title=($("edTitle")?$("edTitle").value:DRAFT.title)||"";
+  DRAFT.sections.forEach((s,si)=>{
+    const t=document.querySelector(`[data-stitle="${si}"]`); if(t)s.title=t.value;
+    const b=document.querySelector(`[data-sbody="${si}"]`); if(b)s.body=b.value;
+    const lb=document.querySelector(`[data-slb="${si}"]`); if(lb)s.leaderboard=lb.checked;
+    s.videos.forEach((v,vi)=>{const l=document.querySelector(`[data-vlabel="${si}-${vi}"]`),u=document.querySelector(`[data-vurl="${si}-${vi}"]`);if(l)v.label=l.value;if(u)v.url=u.value;});
+    s.metrics.forEach((m,mi)=>{const l=document.querySelector(`[data-mlabel="${si}-${mi}"]`),u=document.querySelector(`[data-munit="${si}-${mi}"]`);if(l)m.label=l.value;if(u)m.unit=u.value;});
+  });
+}
 function renderCoach(){
   if(!coachOn) return;
-  if(DAILY&&DAILY.text) $("dailyEdit").value=DAILY.text;
-  // מסננים
-  const members=[...new Set(LOGS.map(l=>l.member))].sort();
-  const cur=$("fltMember").value;
-  $("fltMember").innerHTML=`<option value="">כל המתאמנים</option>`+members.map(m=>`<option value="${esc(m)}" ${m===cur?"selected":""}>${esc(m)}</option>`).join("");
-  const range=+$("fltRange").value;
-  const cutoff = range? Date.now()-range*864e5 : 0;
-  let list=LOGS.filter(l=>!cur||l.member===cur).filter(l=>!cutoff||(l.createdAt||0)>=cutoff);
-  // סטטיסטיקה (7 ימים)
-  const wk=Date.now()-7*864e5;
-  const cntWk=LOGS.filter(l=>(l.createdAt||0)>=wk).length;
-  const activeWk=new Set(LOGS.filter(l=>(l.createdAt||0)>=wk).map(l=>l.member)).size;
-  const pending=LOGS.filter(l=>!l.fb).length;
-  $("coachStats").innerHTML=`<span class="stat"><b>${cntWk}</b> אימונים השבוע</span>
-    <span class="stat"><b>${activeWk}</b> מתאמנים פעילים</span>
-    <span class="stat"><b>${pending}</b> ממתינים לפידבק</span>`;
-  $("coachLogs").innerHTML = list.length ? list.map(l=>logCard(l,true)).join("")
-    : `<div class="empty-state">אין אימונים בטווח שנבחר.</div>`;
+  renderWeek();
+  if(!DRAFT) startDraft();
+  let html=`<div class="proghead"><div class="pd">תוכנית ליום ${fmtLong(SELDATE)}</div></div>
+    <div class="ed">
+    <label>שם התוכנית<input id="edTitle" value="${esc(DRAFT.title||"")}" placeholder="למשל: The Progrm 1"></label>`;
+  DRAFT.sections.forEach((s,si)=>{
+    html+=`<div class="edsec">
+      <div class="eh"><span class="num">מקטע ${si+1}</span>
+        <button class="btn sm danger" data-rmsec="${si}">🗑 הסר מקטע</button></div>
+      <label>כותרת (חימום / כוח / קרוספיט…)<input data-stitle="${si}" value="${esc(s.title||"")}" placeholder="כותרת המקטע"></label>
+      <label>תוכן האימון<textarea data-sbody="${si}" placeholder="פירוט התרגילים, סבבים, אחוזים, הערות…">${esc(s.body||"")}</textarea></label>
+      <div class="mini">🎬 סרטוני יוטיוב לתרגילים</div>`;
+    (s.videos||[]).forEach((v,vi)=>{html+=`<div class="subrow">
+      <input data-vlabel="${si}-${vi}" value="${esc(v.label||"")}" placeholder="שם התרגיל" style="flex:1">
+      <input data-vurl="${si}-${vi}" value="${esc(v.url||"")}" placeholder="קישור יוטיוב" style="flex:1.4">
+      <button class="rm" data-rmvid="${si}-${vi}">✕</button></div>`;});
+    html+=`<button class="btn sec2 row sm" data-addvid="${si}" style="width:100%">+ הוספת סרטון</button>
+      <div class="mini">📊 מדדים להזנת תוצאה (כל מתאמן ימלא)</div>`;
+    (s.metrics||[]).forEach((m,mi)=>{html+=`<div class="subrow">
+      <input data-mlabel="${si}-${mi}" value="${esc(m.label||"")}" placeholder="שם המדד (8RM Push Press)" style="flex:1.6">
+      <input data-munit="${si}-${mi}" value="${esc(m.unit||"")}" placeholder="יחידה (kg)" style="flex:.7">
+      <button class="rm" data-rmmet="${si}-${mi}">✕</button></div>`;});
+    html+=`<button class="btn sec2 row sm" data-addmet="${si}" style="width:100%">+ הוספת מדד</button>
+      <label class="chk"><input type="checkbox" data-slb="${si}" ${s.leaderboard?"checked":""}> הצג לוח תוצאות יומי למקטע זה 🏆</label>
+    </div>`;
+  });
+  html+=`<button class="btn sec2" data-addsec="1">＋ הוספת מקטע</button>
+    <button class="btn" id="edSave">💾 שמירה ופרסום לכל המתאמנים</button>
+    <div class="barbtns">
+      <button class="btn sm sec2" id="edCopy">📋 שכפול מאתמול</button>
+      ${PROG?'<button class="btn sm danger" id="edDelete">🗑 מחיקת התוכנית של היום</button>':''}
+    </div></div>`;
+  $("coachEditor").innerHTML=html;
 }
-
-/* פעולות מאמן/מחיקה (event delegation) */
-document.addEventListener("click", async e=>{
-  const sb=e.target.closest("[data-savefb]");
-  if(sb){ const id=sb.dataset.savefb; const ta=document.querySelector(`[data-fb="${id}"]`);
-    const txt=ta.value.trim(); sb.textContent="שומר…";
-    await patchLog(id,{fb:txt,fbAt:Date.now()});
-    const l=LOGS.find(x=>x.id===id); if(l){ l.fb=txt; l.fbAt=Date.now(); }
-    sb.textContent="✓ נשמר"; setTimeout(renderCoach,700); return; }
-  const db=e.target.closest("[data-del]");
-  if(db){ const id=db.dataset.del; if(!confirm("למחוק את האימון?")) return;
-    await delLogCloud(id); LOGS=LOGS.filter(x=>x.id!==id);
-    renderMember(); renderCoach(); return; }
+/* פעולות עורך */
+$("coachEditor").addEventListener("click",async e=>{
+  const t=e.target;
+  if(t.closest("[data-addsec]")){harvest();DRAFT.sections.push(blankSection());renderCoach();return;}
+  let b;
+  if((b=t.closest("[data-rmsec]"))){harvest();DRAFT.sections.splice(+b.dataset.rmsec,1);if(!DRAFT.sections.length)DRAFT.sections=[blankSection()];renderCoach();return;}
+  if((b=t.closest("[data-addvid]"))){harvest();DRAFT.sections[+b.dataset.addvid].videos.push({label:"",url:""});renderCoach();return;}
+  if((b=t.closest("[data-rmvid]"))){harvest();const[si,vi]=b.dataset.rmvid.split("-").map(Number);DRAFT.sections[si].videos.splice(vi,1);renderCoach();return;}
+  if((b=t.closest("[data-addmet]"))){harvest();DRAFT.sections[+b.dataset.addmet].metrics.push({label:"",unit:""});renderCoach();return;}
+  if((b=t.closest("[data-rmmet]"))){harvest();const[si,mi]=b.dataset.rmmet.split("-").map(Number);DRAFT.sections[si].metrics.splice(mi,1);renderCoach();return;}
+  if(t.id==="edSave"){
+    harvest(); t.textContent="שומר…";
+    DRAFT.sections=DRAFT.sections.filter(s=>s.title||s.body||(s.metrics&&s.metrics.length)||(s.videos&&s.videos.length));
+    await putProgram(SELDATE,DRAFT); PROG=JSON.parse(JSON.stringify(DRAFT)); PROGDATES[SELDATE]=true;
+    t.textContent="✓ פורסם!"; setTimeout(()=>t.textContent="💾 שמירה ופרסום לכל המתאמנים",1300); renderWeek();
+    return;
+  }
+  if(t.id==="edDelete"){ if(!confirm("למחוק את כל התוכנית של היום?"))return; await delProgramCloud(SELDATE); PROG=null; delete PROGDATES[SELDATE]; DRAFT=null; renderCoach(); renderWeek(); return; }
+  if(t.id==="edCopy"){
+    harvest(); const y=addDays(SELDATE,-1); const yp=await fetchProgram(y);
+    if(!yp){ alert("אין תוכנית באתמול לשכפל ממנה."); return; }
+    DRAFT=JSON.parse(JSON.stringify(yp)); DRAFT.sections=(DRAFT.sections||[]).map(s=>({...s,id:genId(),videos:s.videos||[],metrics:s.metrics||[]}));
+    renderCoach(); return;
+  }
 });
-$("btnDaily").onclick=async()=>{
-  const txt=$("dailyEdit").value.trim();
-  DAILY={text:txt,date:todayISO()}; $("btnDaily").textContent="מפרסם…";
-  await putDaily(DAILY);
-  $("btnDaily").textContent="✓ פורסם!"; setTimeout(()=>$("btnDaily").textContent="📢 פרסום אימון היום",1200);
-  renderMember();
-};
-$("fltMember").onchange=renderCoach;
-$("fltRange").onchange=renderCoach;
 
-/* ---------- מצב מאמן (קוד) ---------- */
-function unlockCoach(){
-  const p=prompt("קוד מאמן:");
-  if(p===null) return;
-  if(p===COACH_PIN){ coachOn=true; try{ sessionStorage.setItem("bux_coach","1"); }catch(e){} document.body.classList.add("coach-on"); renderCoach(); }
-  else alert("קוד שגוי 🔒");
-}
+/* ---------- מצב מאמן ---------- */
+function unlockCoach(){const p=prompt("קוד מאמן:");if(p===null)return;if(p===COACH_PIN){coachOn=true;try{sessionStorage.setItem("bux_coach","1");}catch(e){}document.body.classList.add("coach-on");DRAFT=null;renderCoach();}else alert("קוד שגוי 🔒");}
 $("btnUnlock").onclick=unlockCoach;
 
 /* ---------- מתגי תצוגה ---------- */
 function setView(v){
-  document.body.classList.remove("v-member","v-coach");
-  document.body.classList.add("v-"+v);
-  $("btnMember").classList.toggle("active",v==="member");
-  $("btnCoach").classList.toggle("active",v==="coach");
-  try{ localStorage.setItem("bux_view",v); }catch(e){}
-  if(v==="coach"){ if(coachOn){ document.body.classList.add("coach-on"); renderCoach(); } }
+  document.body.classList.remove("v-member","v-coach");document.body.classList.add("v-"+v);
+  $("btnMember").classList.toggle("active",v==="member");$("btnCoach").classList.toggle("active",v==="coach");
+  try{localStorage.setItem("bux_view",v);}catch(e){}
+  if(v==="coach"){if(coachOn){document.body.classList.add("coach-on");renderCoach();}else renderWeek();}
   else renderMember();
 }
 $("btnMember").onclick=()=>setView("member");
 $("btnCoach").onclick=()=>setView("coach");
 
-/* ---------- רענון מהענן ---------- */
-function refreshIfChanged(){
-  const focused=document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
-  const s=sig();
-  if(s!==lastSig && !focused){ lastSig=s; renderMember(); if(coachOn) renderCoach(); }
-}
-
-/* ---------- init ---------- */
+/* ---------- טעינה ורענון ---------- */
+async function reload(){ await loadAll(); if(document.body.classList.contains("v-coach")&&coachOn){DRAFT=null;renderCoach();} else renderMember(); }
 async function init(){
-  if(coachOn) document.body.classList.add("coach-on");
+  if(coachOn)document.body.classList.add("coach-on");
   renderMe();
-  let v="member"; try{ v=localStorage.getItem("bux_view")||"member"; }catch(e){}
+  let v="member";try{v=localStorage.getItem("bux_view")||"member";}catch(e){}
   setView(v);
-  $("fDate").value=todayISO();
-  await fetchAll(); lastSig=sig(); renderMember(); if(coachOn) renderCoach();
-  if(!MEMBER) askName();
-  setInterval(async()=>{ if(await fetchAll()) refreshIfChanged(); }, 1000*20);
+  await reload();
+  if(!MEMBER)askName();
+  setInterval(async()=>{
+    const focused=document.activeElement&&/INPUT|TEXTAREA/.test(document.activeElement.tagName);
+    if(focused)return;
+    if(document.body.classList.contains("v-coach")&&coachOn)return; // לא לדרוס עריכה
+    await loadAll(); renderMember();
+  },1000*20);
 }
 init();
 </script>
